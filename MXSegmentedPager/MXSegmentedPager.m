@@ -39,50 +39,50 @@
 }
 
 - (void)reloadData {
-    
+
     //Gets number of pages
     _count = [self.dataSource numberOfPagesInSegmentedPager:self];
     NSAssert(_count > 0, @"Number of pages in MXSegmentedPager must be greater than 0");
-    
+
     //Gets the segmented control height
     _controlHeight = 44.f;
     if ([self.delegate respondsToSelector:@selector(heightForSegmentedControlInSegmentedPager:)]) {
         _controlHeight = [self.delegate heightForSegmentedControlInSegmentedPager:self];
     }
-    
+
     //Gets new data
     NSMutableArray *images          = [NSMutableArray arrayWithCapacity:_count];
     NSMutableArray *selectedImages  = [NSMutableArray arrayWithCapacity:_count];
     NSMutableArray *titles          = [NSMutableArray arrayWithCapacity:_count];
-    
+
     for (NSInteger index = 0; index < _count; index++) {
-        
+
         titles[index] = [NSString stringWithFormat:@"Page %ld", (long)index];
         if ([self.dataSource respondsToSelector:@selector(segmentedPager:titleForSectionAtIndex:)]) {
             titles[index] = [self.dataSource segmentedPager:self titleForSectionAtIndex:index];
         }
-        
+
         if ([self.dataSource respondsToSelector:@selector(segmentedPager:imageForSectionAtIndex:)]) {
             images[index] = [self.dataSource segmentedPager:self imageForSectionAtIndex:index];
         }
-        
+
         if ([self.dataSource respondsToSelector:@selector(segmentedPager:selectedImageForSectionAtIndex:)]) {
             selectedImages[index] = [self.dataSource segmentedPager:self selectedImageForSectionAtIndex:index];
         }
     }
-    
+
     if ([self.dataSource respondsToSelector:@selector(segmentedPager:attributedTitleForSectionAtIndex:)]) {
         __weak typeof(self) segmentedPager = self;
         self.segmentedControl.titleFormatter = ^NSAttributedString *(HMSegmentedControl *segmentedControl, NSString *title, NSUInteger index, BOOL selected) {
             return [segmentedPager.dataSource segmentedPager:segmentedPager attributedTitleForSectionAtIndex:index];
         };
     }
-    
+
     self.segmentedControl.sectionImages = images;
     self.segmentedControl.sectionSelectedImages = selectedImages;
     self.segmentedControl.sectionTitles = titles;
     [self.segmentedControl setNeedsDisplay];
-    
+
     [self.pager reloadData];
 }
 
@@ -95,11 +95,11 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
+
     if (_count <= 0) {
         [self reloadData];
     }
-    
+
     [self layoutContentView];
     [self layoutSegmentedControl];
     [self layoutPager];
@@ -107,7 +107,7 @@
 
 - (void) layoutContentView {
     CGRect frame = self.bounds;
-    
+
     frame.origin = CGPointZero;
     self.contentView.frame = frame;
     self.contentView.contentSize = self.contentView.frame.size;
@@ -117,9 +117,9 @@
 
 - (void) layoutSegmentedControl {
     CGRect frame = self.bounds;
-    
+
     frame.origin.x = self.segmentedControlEdgeInsets.left;
-    
+
     if (self.segmentedControlPosition == MXSegmentedControlPositionTop) {
         frame.origin.y = self.segmentedControlEdgeInsets.top;
     }
@@ -132,26 +132,26 @@
     frame.size.width -= self.segmentedControlEdgeInsets.left;
     frame.size.width -= self.segmentedControlEdgeInsets.right;
     frame.size.height = _controlHeight;
-    
+
     self.segmentedControl.frame = frame;
 }
 
 - (void) layoutPager {
     CGRect frame = self.bounds;
-    
+
     frame.origin = CGPointZero;
-    
+
     if (self.segmentedControlPosition == MXSegmentedControlPositionTop) {
         frame.origin.y  = _controlHeight;
         frame.origin.y += self.segmentedControlEdgeInsets.top;
         frame.origin.y += self.segmentedControlEdgeInsets.bottom;
     }
-    
+
     frame.size.height -= _controlHeight;
     frame.size.height -= self.segmentedControlEdgeInsets.top;
     frame.size.height -= self.segmentedControlEdgeInsets.bottom;
     frame.size.height -= self.contentView.parallaxHeader.minimumHeight;
-    
+
     self.pager.frame = frame;
 }
 
@@ -159,7 +159,7 @@
 
 - (MXScrollView *)contentView {
     if (!_contentView) {
-        
+
         // Create scroll-view
         _contentView = [[MXScrollView alloc] init];
         _contentView.delegate = self;
@@ -174,7 +174,7 @@
         [_segmentedControl addTarget:self
                               action:@selector(pageControlValueChanged:)
                     forControlEvents:UIControlEventValueChanged];
-        
+
         [self.contentView addSubview:_segmentedControl];
         _moveSegment = YES;
     }
@@ -208,11 +208,11 @@
 #pragma mark <MXScrollViewDelegate>
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
+
     if ([self.delegate respondsToSelector:@selector(segmentedPager:didScrollWithParallaxHeader:)]) {
         [self.delegate segmentedPager:self didScrollWithParallaxHeader:scrollView.parallaxHeader];
     }
-    
+
     if (self.progressBlock) {
         self.progressBlock(self.contentView.parallaxHeader.progress);
     }
@@ -226,11 +226,19 @@
 
 - (BOOL)scrollView:(MXScrollView *)scrollView shouldScrollWithSubView:(UIView *)subView {
     UIView<MXPageProtocol> *page = (id) self.pager.selectedPage;
-    
+
     if ([page respondsToSelector:@selector(segmentedPager:shouldScrollWithView:)]) {
         return [page segmentedPager:self shouldScrollWithView:subView];
     }
     return YES;
+}
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView {
+    if ([self.delegate respondsToSelector:@selector(segmentedPager:shouldScrollToTop:)]) {
+        return [self.delegate segmentedPager:self shouldScrollToTop:scrollView];
+    } else {
+        return YES;
+    }
 }
 
 #pragma mark HMSegmentedControl target
@@ -270,14 +278,14 @@
     if ([self.delegate respondsToSelector:@selector(segmentedPager:didSelectViewWithIndex:)]) {
         [self.delegate segmentedPager:self didSelectViewWithIndex:index];
     }
-    
+
     NSString* title = self.segmentedControl.sectionTitles[index];
     UIView* view = self.pager.selectedPage;
-                    
+
     if ([self.delegate respondsToSelector:@selector(segmentedPager:didSelectViewWithTitle:)]) {
         [self.delegate segmentedPager:self didSelectViewWithTitle:title];
     }
-    
+
     if ([self.delegate respondsToSelector:@selector(segmentedPager:didSelectView:)]) {
         [self.delegate segmentedPager:self didSelectView:view];
     }
@@ -350,7 +358,7 @@
                                                                   attribute:NSLayoutAttributeNotAnAttribute
                                                                  multiplier:1
                                                                    constant:0];
-        
+
         objc_setAssociatedObject(self, @selector(stickyViewHeightConstraint), stickyViewHeightConstraint, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return stickyViewHeightConstraint;
@@ -391,13 +399,13 @@
     if (self.stickyView) {
         [self.stickyView removeFromSuperview];
         [self.contentView addSubview:self.stickyView];
-        
+
         self.stickyView.translatesAutoresizingMaskIntoConstraints = NO;
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[v]|"
                                                                                  options:0
                                                                                  metrics:nil
                                                                                    views:@{@"v" : self.stickyView}]];
-        
+
         NSLayoutAttribute attribute = (self.stickyViewPosition == VGParallaxHeaderStickyViewPositionTop)? NSLayoutAttributeTop : NSLayoutAttributeBottom;
         [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.stickyView
                                                                      attribute:attribute
@@ -406,7 +414,7 @@
                                                                      attribute:attribute
                                                                     multiplier:1
                                                                       constant:0]];
-        
+
         [self.contentView addConstraint:self.stickyViewHeightConstraint];
     }
 }

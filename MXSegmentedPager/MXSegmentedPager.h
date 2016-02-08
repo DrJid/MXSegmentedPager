@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, MXSegmentedControlPosition) {
 
 /**
  MXProgressBlock type definition.
- 
+
  @param progress The scroll progress.
  */
 typedef void (^MXProgressBlock) (CGFloat progress);
@@ -54,7 +54,7 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 @optional
 /**
  Tells the delegate that a specified view is about to be selected.
- 
+
  @param segmentedPager A segmented-pager object informing the delegate about the impending selection.
  @param view           The selected page view.
  */
@@ -62,7 +62,7 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 
 /**
  Tells the delegate that a specified title is about to be selected.
- 
+
  @param segmentedPager A segmented-pager object informing the delegate about the impending selection.
  @param title          The selected page title.
  */
@@ -70,7 +70,7 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 
 /**
  Tells the delegate that a specified index is about to be selected.
- 
+
  @param segmentedPager A segmented-pager object informing the delegate about the impending selection.
  @param index          The selected page index.
  */
@@ -78,16 +78,16 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 
 /**
  Asks the delegate to return the height of the segmented control in the segmented-pager.
- 
+
  @param segmentedPager A segmented-pager object informing the delegate about the impending selection.
- 
+
  @return A nonnegative floating-point value that specifies the height (in points) that segmented-control should be.
  */
 - (CGFloat) heightForSegmentedControlInSegmentedPager:(MXSegmentedPager*)segmentedPager;
 
 /**
  Tells the delegate that the segmented pager has scrolled with the parallax header.
- 
+
  @param segmentedPager A segmented-pager object informing the delegate about the impending selection.
  @param parallaxHeader The parallax-header that has scrolled.
  */
@@ -95,18 +95,19 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 
 /**
  Tells the delegate the segmented pager has completed dragging with the parallax header.
- 
+
  @param segmentedPager A segmented-pager object informing the delegate about the impending selection.
  @param parallaxHeader The parallax-header that has scrolled.
  */
 - (void) segmentedPager:(MXSegmentedPager *)segmentedPager didEndDraggingWithParallaxHeader:(MXParallaxHeader *)parallaxHeader;
 
+- (BOOL) segmentedPager:(MXSegmentedPager *)segmentedPager shouldScrollToTop:(UIScrollView *)scrollView;
 @end
 
 /**
  MXSegmentedPager data source protocol.
  The MXSegmentedPagerDataSource protocol is adopted by an object that mediates the application’s data model for a MXSegmentedPager object. The data source provides the segmented-pager object with the information it needs to construct and modify a MXSegmentedPager view.
- 
+
  The required methods of the protocol provide the pages to be displayed by the segmented-pager as well as inform the MXSegmentedPager object about the number of pages. The data source may implement optional methods to configure the segmented control.
  */
 @protocol MXSegmentedPagerDataSource <NSObject>
@@ -114,19 +115,19 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 @required
 /**
  Asks the data source to return the number of pages in the segmented-pager.
- 
+
  @param segmentedPager A segmented-pager object requesting this information.
- 
+
  @return The number of pages in segmented-pager.
  */
 - (NSInteger) numberOfPagesInSegmentedPager:(MXSegmentedPager *)segmentedPager;
 
 /**
  Asks the data source for a view to insert in a particular page of the segmented-pager.
- 
+
  @param segmentedPager A segmented-pager object requesting the view.
  @param index          An index number identifying a page in segmented-pager.
- 
+
  @return An object inheriting from UIView that the segmented-pager can use for the specified page.
  */
 - (__kindof UIView*) segmentedPager:(MXSegmentedPager*)segmentedPager viewForPageAtIndex:(NSInteger)index;
@@ -135,40 +136,40 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 
 /**
  Asks the data source for a title to assign to a particular page of the segmented-pager. The title will be used depending on the HMSegmentedControlType you have choosen.
- 
+
  @param segmentedPager A segmented-pager object requesting the title.
  @param index          An index number identifying a page in segmented-pager.
- 
+
  @return The NSString title of the page in segmented-pager.
  */
 - (NSString*) segmentedPager:(MXSegmentedPager*)segmentedPager titleForSectionAtIndex:(NSInteger)index;
 
 /**
  Asks the data source for a title to assign to a particular page of the segmented-pager. The title will be used depending on the HMSegmentedControlType you have choosen.
- 
+
  @param segmentedPager A segmented-pager object requesting the title.
  @param index          An index number identifying a page in segmented-pager.
- 
+
  @return The NSAttributedString title of the page in segmented-pager.
  */
 - (NSAttributedString*) segmentedPager:(MXSegmentedPager*)segmentedPager attributedTitleForSectionAtIndex:(NSInteger)index;
 
 /**
  Asks the data source for a image to assign to a particular page of the segmented-pager. The image will be used depending on the HMSegmentedControlType you have choosen.
- 
+
  @param segmentedPager A segmented-pager object requesting the title.
  @param index          An index number identifying a page in segmented-pager.
- 
+
  @return The image of the page in segmented-pager.
  */
 - (UIImage*) segmentedPager:(MXSegmentedPager*)segmentedPager imageForSectionAtIndex:(NSInteger)index;
 
 /**
  Asks the data source for a selected image to assign to a particular page of the segmented-pager. The image will be used depending on the HMSegmentedControlType you have choosen.
- 
+
  @param segmentedPager A segmented-pager object requesting the title.
  @param index          An index number identifying a page in segmented-pager.
- 
+
  @return The selected image of the page in segmented-pager.
  */
 - (UIImage*) segmentedPager:(MXSegmentedPager*)segmentedPager selectedImageForSectionAtIndex:(NSInteger)index;
@@ -252,10 +253,10 @@ typedef void (^MXProgressBlock) (CGFloat progress);
 @optional
 /**
  Asks the page if the segmented-pager should scroll with the view.
- 
+
  @param segmentedPager The segmented-pager. This is the object sending the message.
  @param view           An instance of a sub view.
- 
+
  @return YES to allow segmented-pager and view to scroll together. The default implementation returns YES.
  */
 - (BOOL) segmentedPager:(MXSegmentedPager *)segmentedPager shouldScrollWithView:(__kindof UIView*)view;
